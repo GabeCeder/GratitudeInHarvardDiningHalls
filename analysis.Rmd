@@ -61,8 +61,6 @@ ggplot(b, aes(house, mean, fill = house)) +
     theme(legend.position = "none",
           axis.text.x = element_text(angle = 30, vjust= .7)) +
     scale_fill_viridis_d(option = "plasma")
-
-
   
 ```
 
