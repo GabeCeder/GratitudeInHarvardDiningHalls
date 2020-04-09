@@ -1,0 +1,108 @@
+---
+title: "analysis"
+author: "Gabe Cederberg"
+date: "4/8/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(tidycensus)
+library(readxl)
+library(janitor)
+```
+
+```{r, echo = FALSE, message = FALSE}
+a <- read_excel("HudsData.xlsx") %>% 
+  select(stat = "...1",
+         Adams:Winthrop) %>% 
+  pivot_longer(cols = c("Adams", 
+                        "Annenberg",
+                        "Cabot",
+                        "Currier",
+                        "Dunster",
+                        "Eliot",
+                        "Kirkland",
+                        "Leverett",
+                        "Lowell",
+                        "Mather",
+                        "Pforzheimer",
+                        "Quincy",
+                        "Winthrop"),
+               names_to = "house") %>% 
+  pivot_wider(names_from = stat, 
+              values_from = value) %>% 
+  clean_names() 
+
+a$confint[2] <- NA
+
+b <- a %>% 
+  mutate(upper = mean + confint,
+         lower = mean - confint)
+```
+
+
+```{r, echo = FALSE, warning = FALSE}
+
+# Plotting thank-you rates.
+
+ggplot(b, aes(house, mean, fill = house)) +
+  geom_col() +
+  geom_errorbar(aes(x=house, ymin=lower, ymax=upper), width=0.3, colour="black", alpha=0.8, size=.3) + 
+  theme_classic() +
+  labs(x = "House", 
+       y = "Thank-You Rate", 
+        title = "Thank-You Rates in Each Harvard Dining Hall", 
+        subtitle = "N = 525",
+       caption="Error Bars represent 95% confidence intervals; 
+       Annenberg error bar omitted due to small sample size.") +
+    theme(legend.position = "none",
+          axis.text.x = element_text(angle = 30, vjust= .7)) +
+    scale_fill_viridis_d(option = "plasma")
+
+
+  
+```
+
+```{r, echo = FALSE, include = FALSE, warning = FALSE}
+# Thank-you rates ranked
+
+ggplot(b, aes(reorder(house, -mean), mean, fill = house)) +
+  geom_col() +
+  geom_errorbar(aes(x=house, ymin=lower, ymax=upper), width=0.2, colour="black", alpha=0.7, size=.3) + 
+  theme_classic() +
+  labs(x = "House", 
+       y = "Thank-You Rate", 
+        title = "Thank-You Rates in Each Harvard Dining Hall", 
+        subtitle = "Error bars show the 95% confidence interval; N = 525",
+       caption="Error Bars represent 95% confidence intervals;
+       Annenberg error bar omitted due to small sample size.") +
+    theme(legend.position = "none",
+          axis.text.x = element_text(angle = 30, vjust= .7)) +
+    scale_fill_viridis_d(option = "E")
+
+
+```
+
+
+
+
+
+```{r, include = FALSE}
+a <- read_excel("CederbergHODPstudy.xlsx") %>% 
+  clean_names() %>% 
+  select(house = "x1",
+         pickups = "number_of_grill_orders_picked_up_w_huds_staff_present",
+         thanks = "number_of_thank_yous",
+         students = "number_of_students_in_each_house") %>% 
+  filter(house != "Total") %>% 
+  mutate(pct = thanks / pickups) %>% 
+  mutate(weighted = pct * (students / 6264))
+
+b <- tibble(house = c("Adams", "Annenberg"),
+            yes = c(13, 2),
+            no = c(20, 41))
+  
+b <- read_excel("HudsData.xlsx")
