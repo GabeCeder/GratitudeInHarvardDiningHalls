@@ -167,12 +167,13 @@ ggplot(combined, aes(house, pct, fill = house)) +
        y = "Thank-You Rate", 
         title = "Thank-You Rates in Each Harvard Dining Hall", 
         subtitle = "N = 525",
-       caption="Error Bars represent 95% confidence intervals using 10,000 bootstrapped samples; 
+       caption="Error bars represent 95% confidence intervals using 10,000 bootstrapped samples; 
        Annenberg error bars omitted due to small sample size (np < 10).", size = 0.05) +
     theme(legend.position = "none",
           axis.title.x = element_text(size = 12),
           axis.title.y = element_text(size = 12),
-          axis.text.x = element_text(angle = 30, vjust= .7)) +
+          axis.text.x = element_text(angle = 30, vjust= .7),
+          plot.caption = element_text(size = 8)) +
     scale_fill_viridis_d(option = "plasma")
 ```
 
